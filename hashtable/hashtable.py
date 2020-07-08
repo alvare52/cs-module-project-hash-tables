@@ -6,7 +6,9 @@ class HashTableEntry:
         self.key = key
         self.value = value
         self.next = None
-
+    
+    def __str__(self):
+        return f"{self.key} : {self.value}"
 
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
@@ -22,12 +24,23 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
+
+        # OLD
+        # if capacity < 8:
+        #     self.capacity = MIN_CAPACITY
+        # else:
+        #     self.capacity = capacity
+        # # self.capacity = capacity
+        # self.container = [None] * capacity
+
+        # NEW
         if capacity < 8:
             self.capacity = MIN_CAPACITY
         else:
             self.capacity = capacity
-        # self.capacity = capacity
-        self.container = [None] * capacity
+        self.container = [HashTableEntry(None, None)] * capacity # ?
+        self.head = HashTableEntry(None, None)
+        self.usedSlots = 0
 
     def get_num_slots(self):
         """
@@ -48,18 +61,20 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        pass
+        # Your code here (slots used / total slots)
+        
+        print(f"usedSlots = {self.usedSlots}")
+        return float(self.usedSlots / self.get_num_slots())
 
-    def fnv1(self, key):
-        """
-        FNV-1 Hash, 64-bit
+    # def fnv1(self, key):
+    #     """
+    #     FNV-1 Hash, 64-bit
 
-        Implement this, and/or DJB2.
-        """
+    #     Implement this, and/or DJB2.
+    #     """
 
-        # Your code here
-        pass
+    #     # Your code here
+    #     pass
 
 
     def djb2(self, key):
@@ -75,8 +90,8 @@ class HashTable:
 
         for byte in string_bytes:
             total += byte
-            # NEW (clamp to 32 bits)
-            total &= 0xffffffff
+            # NEW (clamp to 32 bits?)
+            # total &= 0xffffffff
         
         return total
 
@@ -97,9 +112,18 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # OLD
+        # index = self.hash_index(key)
+        # self.container[index] = value
+
+        # NEW
+        node = HashTableEntry(key, value)
         index = self.hash_index(key)
         self.container[index] = value
+        node.next = self.head
+        self.head = node
 
+        self.usedSlots += 1
 
     def delete(self, key):
         """
@@ -110,16 +134,38 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        if self.get(key) is None:
-            print("Key not found")
-            return None
+        # OLD
+        # if self.get(key) is None:
+        #     print("Key not found")
+        #     return None
         
-        else:
-            valueRemoved = self.get(key)
-            self.put(key, None)
-            return valueRemoved
+        # else:
+        #     valueRemoved = self.get(key)
+        #     self.put(key, None)
+        #     return valueRemoved
         
+        # NEW
+        current = self.head
+        value = self.container[self.hash_index(key)]
+        
+        if current.value == value:
+            self.head = current.next
+            self.usedSlots -= 1
+            return current
 
+        prev = current
+        current = current.next
+
+        while current is not None:
+            if current.value == value:
+                prev.next = current.next
+                self.usedSlots -= 1
+                return current
+            else:
+                prev = current
+                current = current.next
+
+        return None
 
 
     def get(self, key):
@@ -130,10 +176,32 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-        index = self.hash_index(key)
-        return self.container[index]
+        # Your code here (OLD)
+        # index = self.hash_index(key)
+        # return self.container[index]
 
+        # NEW
+
+        # start at head
+        current = self.head
+        value = self.container[self.hash_index(key)]
+        # print(f"current/head = {current}, value = {value}")
+
+        # loop through list
+        while current is not None:
+
+            # find value
+            if current.value == value:
+
+                # return entry
+                print(f"current.value = {current.value}")
+                return current.value
+
+            # keep going            
+            current = current.next
+        
+        # if it's not in list, return None
+        return None
 
     def resize(self, new_capacity):
         """
@@ -143,6 +211,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        # if load factor > 0.7 * self.capacity
         pass
         
          
@@ -152,83 +221,105 @@ class HashTable:
 if __name__ == "__main__":
     ht = HashTable(8)
 
-    ht.put("line_1", "'Twas brillig, and the slithy toves")
-    ht.put("line_2", "Did gyre and gimble in the wabe:")
-    ht.put("line_3", "All mimsy were the borogoves,")
-    ht.put("line_4", "And the mome raths outgrabe.")
-    ht.put("line_5", '"Beware the Jabberwock, my son!')
-    ht.put("line_6", "The jaws that bite, the claws that catch!")
-    ht.put("line_7", "Beware the Jubjub bird, and shun")
-    ht.put("line_8", 'The frumious Bandersnatch!"')
-    ht.put("line_9", "He took his vorpal sword in hand;")
-    ht.put("line_10", "Long time the manxome foe he sought--")
-    ht.put("line_11", "So rested he by the Tumtum tree")
-    ht.put("line_12", "And stood awhile in thought.")
+    # test example snippet
+    print("\nTESTING")
 
-    print("")
+    ht.put("key-0", "val-0")
+    ht.put("key-1", "val-1")
+    ht.put("key-2", "val-2")
+    ht.put("key-3", "val-3")        
+    ht.put("key-4", "val-4")
+    ht.put("key-5", "val-5")
+    # ht.put("key-6", "val-6")
+    # ht.put("key-7", "val-7")
+    # ht.put("key-8", "val-8")
+    # ht.put("key-9", "val-9")
 
-    # Test storing beyond capacity
-    for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
+    print(ht.get_load_factor())
+    print(ht.get_num_slots())
+    return_value = ht.get("key-0")
+    print(return_value)
 
-    # Test resizing
-    old_capacity = ht.get_num_slots()
-    ht.resize(ht.capacity * 2)
-    new_capacity = ht.get_num_slots()
+    # Start file test
+    # ht.put("line_1", "'Twas brillig, and the slithy toves")
+    # ht.put("line_2", "Did gyre and gimble in the wabe:")
+    # ht.put("line_3", "All mimsy were the borogoves,")
+    # ht.put("line_4", "And the mome raths outgrabe.")
+    # ht.put("line_5", '"Beware the Jabberwock, my son!')
+    # ht.put("line_6", "The jaws that bite, the claws that catch!")
+    # ht.put("line_7", "Beware the Jubjub bird, and shun")
+    # ht.put("line_8", 'The frumious Bandersnatch!"')
+    # ht.put("line_9", "He took his vorpal sword in hand;")
+    # ht.put("line_10", "Long time the manxome foe he sought--")
+    # ht.put("line_11", "So rested he by the Tumtum tree")
+    # ht.put("line_12", "And stood awhile in thought.")
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # print("")
 
-    # Test if data intact after resizing
-    for i in range(1, 13):
-        print(ht.get(f"line_{i}"))
+    # # Test storing beyond capacity
+    # for i in range(1, 13):
+    #     print(ht.get(f"line_{i}"))
+
+    # # Test resizing
+    # old_capacity = ht.get_num_slots()
+    # ht.resize(ht.capacity * 2)
+    # new_capacity = ht.get_num_slots()
+
+    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+
+    # # Test if data intact after resizing
+    # for i in range(1, 13):
+    #     print(ht.get(f"line_{i}"))
+    
+    # # End file test
 
     
     # Lecture Notes Day 3
     
     # Fibonacci 
 
-    cache = {}
-    def fib(n):
-        if n <= 1:
-            return n
+    # cache = {}
+    # def fib(n):
+    #     if n <= 1:
+    #         return n
 
 
-        # if n not in cache:
-            # cache[n] = fib(n-1) + fib(n-2)
+    #     # if n not in cache:
+    #         # cache[n] = fib(n-1) + fib(n-2)
 
-        # or just this
-        if n in cache:
-            return cache[n]
-        else:
-            cache[n] = fib(n - 1) + fib(n - 2)
-        #    
+    #     # or just this
+    #     if n in cache:
+    #         return cache[n]
+    #     else:
+    #         cache[n] = fib(n - 1) + fib(n - 2)
+    #     #    
         
-        return cache[n]
+    #     return cache[n]
 
-    print(fib(3))
-    print(fib(5))
-    print(fib(6))
-    print(fib(7))
-    print(fib(50))
+    # print(fib(3))
+    # print(fib(5))
+    # print(fib(6))
+    # print(fib(7))
+    # print(fib(50))
 
-    # Cache 
+    # # Cache 
 
-    import math
+    # import math
 
-    lookup_table = {}
+    # lookup_table = {}
 
-    def inverse_root(n):
-        return 1 / math.sqrt(n)
+    # def inverse_root(n):
+    #     return 1 / math.sqrt(n)
 
-    def build_lookup_table():
-        for i in range(1, 1000):
-            lookup_table[i] = inverse_root(i)
+    # def build_lookup_table():
+    #     for i in range(1, 1000):
+    #         lookup_table[i] = inverse_root(i)
     
-    build_lookup_table()
+    # build_lookup_table()
 
-    print(lookup_table[556])
-    print(lookup_table[99])
-    print(lookup_table[999])
+    # print(lookup_table[556])
+    # print(lookup_table[99])
+    # print(lookup_table[999])
 
     # lazily = just in time, only when we need it
 
