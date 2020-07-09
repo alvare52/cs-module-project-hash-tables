@@ -236,7 +236,7 @@ class HashTable:
         # Your code here
         # if load factor > 0.7 * self.capacity
         print(f"resize called, new cap = {new_capacity}")
-        oldContainer = self.container
+        oldContainer = self.container.copy()
 
         # new tables that twice the size of old
         self.capacity = new_capacity
