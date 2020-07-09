@@ -117,13 +117,35 @@ class HashTable:
         # self.container[index] = value
 
         # NEW
-        node = HashTableEntry(key, value)
+        # node = HashTableEntry(key, value)
+        # index = self.hash_index(key)
+        # self.container[index] = node
+        # node.next = self.head
+        # self.head = node
+
         index = self.hash_index(key)
-        self.container[index] = value
-        node.next = self.head
-        self.head = node
+        current = self.container[index]
+
+        while current is not None and current.key != key:
+            current = current.next
+        
+        if current is not None:
+            current.value = value
+        else:
+            newEntry = HashTableEntry(key, value)
+            newEntry.next = self.container[index]
+            self.container[index] = newEntry
 
         self.usedSlots += 1
+        if self.get_load_factor() > 0.7:
+            self.resize(self.capacity * 2)
+
+        # variable storage up top current = self.container[index]
+
+        # while not None and key is not key?
+        # move to next pointer var = var.next
+        # if var in not None, then var.value = value (used keys)
+        # else, (for new keys) 
 
     def delete(self, key):
         """
@@ -165,6 +187,7 @@ class HashTable:
                 prev = current
                 current = current.next
 
+        # check to resize down?
         return None
 
 
@@ -212,10 +235,26 @@ class HashTable:
         """
         # Your code here
         # if load factor > 0.7 * self.capacity
-        pass
-        
-         
+        print(f"resize called, new cap = {new_capacity}")
+        oldContainer = self.container
 
+        # new tables that twice the size of old
+        self.capacity = new_capacity
+        self.container = [HashTableEntry(None, None)] * self.capacity
+        self.head = HashTableEntry(None, None)
+        self.usedSlots = 0
+
+        for slot in oldContainer:
+            current = slot
+            print(f"current = {current}")
+
+            # if current.key is not None and current.value is not None:
+            #     self.put(current.key, current.value)
+
+            while current.key is not None and current.value is not None:
+                self.put(current.key, current.value)
+                current = current.next
+            
 
 
 if __name__ == "__main__":
@@ -230,15 +269,24 @@ if __name__ == "__main__":
     ht.put("key-3", "val-3")        
     ht.put("key-4", "val-4")
     ht.put("key-5", "val-5")
-    # ht.put("key-6", "val-6")
-    # ht.put("key-7", "val-7")
-    # ht.put("key-8", "val-8")
-    # ht.put("key-9", "val-9")
+    ht.put("key-6", "val-6")
+    ht.put("key-7", "val-7")
+    ht.put("key-8", "val-8")
+    ht.put("key-9", "val-9")
 
     print(ht.get_load_factor())
     print(ht.get_num_slots())
-    return_value = ht.get("key-0")
-    print(return_value)
+    
+    print(ht.get("key-0"))
+    print(ht.get("key-1"))
+    print(ht.get("key-2"))
+    print(ht.get("key-3"))
+    print(ht.get("key-4"))
+    print(ht.get("key-5"))
+    print(ht.get("key-6"))
+    print(ht.get("key-7"))
+    print(ht.get("key-8"))
+    print(ht.get("key-9"))
 
     # Start file test
     # ht.put("line_1", "'Twas brillig, and the slithy toves")
