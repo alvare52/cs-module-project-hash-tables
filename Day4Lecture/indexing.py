@@ -39,3 +39,4 @@ def build_index(records):
 idx = build_index(records)
 
 print(idx["New York"])
+print(idx["South Carolina"])
