@@ -244,6 +244,7 @@ class HashTable:
         self.head = HashTableEntry(None, None)
         self.usedSlots = 0
 
+        current = None
         for slot in oldContainer:
             current = slot
             print(f"current = {current}")
@@ -251,8 +252,9 @@ class HashTable:
             # if current.key is not None and current.value is not None:
             #     self.put(current.key, current.value)
 
-            while current.key is not None and current.value is not None:
+            while current is not None:
                 self.put(current.key, current.value)
+                print(self.get(current.key))
                 current = current.next
             
 
