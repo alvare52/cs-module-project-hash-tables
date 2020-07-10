@@ -17,10 +17,14 @@ def slowfun(x, y):
     output, but completes quickly instead of taking ages to run.
     """
     # Your code here
+    v = math.pow(x, y)
+    v = math.factorial(v)
+    v //= (x + y)
+    v %= 982451653
 
+    return v
 
-
-
+print("\n--- START ---")
 # Do not modify below this line!
 
 for i in range(50000):
